@@ -101,7 +101,7 @@ The finite sample estimation for kernel Bayes' rule is given by \cite{song2013ke
 where $\Lambda = \up{diag}((G+\lambda I)^{-1}\tilde{G}\alpha)$. The meanings of different symbols are as follows:
 \begin{itemize}
 \item $\alpha = (\alpha_1,\cdots,\alpha_{\tilde{m}})$. It is used to represent the prior of $Y$, i.e., $\mu_{Y}^{\pi} = \sum_{i=1}^{\tilde{m}} \alpha_i \phi(\tilde{y}_i)$.
-\item $\Upsilon = (\phi(x_1),\cdots,\phi(x_m)$. Correspondingly, $K = \Upsilon^\intercal \Upsilon$.
+\item $\Upsilon = (\psi(x_1),\cdots,\psi(x_m)$. Correspondingly, $K = \Upsilon^\intercal \Upsilon$.
 \item $\Phi = (\phi(y_1),\cdots,\phi(y_m))$. Correspondingly, $G = \Phi^\intercal \Phi$.
 \item $\tilde{\Phi} = (\phi(\tilde{y}_1),\cdots,\phi(\tilde{y_m}))$. Correspondingly, $\tilde{G} = \Phi^\intercal \tilde{\Phi}$.
 \item $K_{:x} = (K(x_1,x),K(x_2,x),\cdots,K(X_m,x))^\intercal$.
@@ -364,7 +364,7 @@ Another thread is to use \thmref{thm:smola} in case $|\cal{Y}| < \infty$. Since 
 The third thread is to treat $\langle f,f\rangle$ as a hyper-parameter, since $f$ is fixed before computing.
 
 \section{Kernel Posterior Average and Posterior Decoding}
-There are some tweaks for obtaining estimations of the posterior average and the MAP value compared to \cite{song2013kernel}, since we introduce $f$ in the expression of kernel posterior embedding. After obtaining the estimation of kernel regularized posterior $\mu_{Y|X}^\pi(x) = \sum_{i=1}^n \gamma_i(x) \phi(y_i) + \gamma(x) f$, the average of any other function $g$ should be computed as $\langle g, \mu_{Y|X}^\pi(x)\rangle = \sum_{i=1}^{n} \gamma_i(x)g(y_i) + \gamma(x) \langle g,f\rangle$, and the MAP value can obtained by finding the closest kernel mapping to the kernel posterior regularized embedding, i.e., $\hat{y} = \argmax_{y} \|\mu_{Y|X}^\pi(x) - \phi(y)\|^2 = \argmin_{y} \{\sum_{ij}\gamma_i(x)\gamma_j(x)k(y_i,y_j) + 2\sum_i \gamma_i(x)\gamma(x)f(y_i) %+ \gamma^2(x)\langle f,f\rangle 
+There are some tweaks for obtaining estimations of the posterior average and the MAP value compared to \cite{song2013kernel}, since we introduce $f$ in the expression of kernel posterior embedding. After obtaining the estimation of kernel regularized posterior $\mu_{Y|X}^\pi(x) = \sum_{i=1}^n \gamma_i(x) \phi(y_i) + \gamma(x) f$, the average of any other function $g$ should be computed as $\langle g, \mu_{Y|X}^\pi(x)\rangle = \sum_{i=1}^{n} \gamma_i(x)g(y_i) + \gamma(x) \langle g,f\rangle$, and the MAP value can obtained by finding the closest kernel mapping to the kernel posterior regularized embedding, i.e., $\hat{y} = \argmax_{y} \|\mu_{Y|X}^\pi(x) - \phi(y)\|^2 = \argmin_{y} \{ %\sum_{ij}\gamma_i(x)\gamma_j(x)k(y_i,y_j) + 2\sum_i \gamma_i(x)\gamma(x)f(y_i) %+ \gamma^2(x)\langle f,f\rangle 
 - 2\sum_i\gamma_i(x)k(y_i,y) - 2\gamma(x)f(y) + k(y,y)\}$. 
 
 The main difficulty here is still finding $\langle f,g\rangle$ and $\langle f,f\rangle$. As discussed before, in finite state space case, we may use $\langle f,g\rangle = \bf{f}^\T K_Y \bf{g}$.
@@ -452,9 +452,23 @@ When $|\cal{Z}| = n$, we always have $\norm{f}_{\cal{H}_Z} \leq n\sqrt{K}$ and $
 We can use $(\widehat{\mu}_Z^\pi)^+$ as an approximation when $|\cal{Z}| = \infty$, though the convergence remains unexamined. Empirically this approximation works especially well when the prior and posterior distributions are similar.
 \end{remark}
 \begin{remark}
-We can also consider to use $\beta$ directly instead of $\beta^+$ when $|\cal{Z}| = \infty$. Although this will make the optimization problem non-convex and even does not have minima, we can use it as an approximation. There are examples where people use techniques developed and proved for convex problems to non-convex optimization, such as deep neural network training methods \cite{nesterov1983method}\cite{duchi2011adaptive}. ({\color{red}remains to be examined by experiments})
+Another ad hoc method is to use $\beta$ directly instead of $\beta^+$ when $|\cal{Z}| = \infty$. Although this will make the optimization problem non-convex and even do not have minima, we can use it as an approximation. There are examples where people use techniques developed and proved for convex problems to non-convex optimization, such as deep neural network training methods \cite{nesterov1983method}\cite{duchi2011adaptive}. ({\color{red}remains to be examined by experiments})
 \end{remark}
 \section{Experiments}
-
+\subsection{Kernel Filtering}
+Presuming homogeneity of the HMM, we can use empirical covariance operators to estimate the transition and observation probabilities in a nonparametric way:
+\begin{align}
+\hat{C}_{YX} &= \frac{1}{T}\sum_{i=1}^T \phi(Y_i)\otimes\psi(X_i),\quad \hat{C}_{Y_{+1}Y} = \frac{1}{T}\sum_{i=1}^T \phi(Y_{i+1})\otimes \phi(Y_i)\\
+\hat{C}_{XX} &= \frac{1}{T}\sum_{i=1}^T \psi(X_i) \otimes \psi(X_i),\quad \hat{C}_{YY} = \frac{1}{T}\sum_{i=1}^T \phi(Y_i)\otimes\phi(Y_i).
+\end{align}
+Now we can derive recursive formulas for the state-space filtering task. Suppose we already have an estimator of the embedding for $p(y_t|x_1,\cdots,x_t)$ in the form
+\begin{align}
+\hat{m}_{y_t|x_1,\cdots,x_t} = \sum_{i=1}^T \alpha_i^{(t)} \phi(Y_i).
+\end{align}
+The update rule for $\alpha^{(t+1)}(x_1,\cdots,x_{t+1})$ can be derived by a prediction and a correction step. For the forward propagation, we have the following empirical estimators,
+\begin{align}
+\hat{m}_{y_{t+1}|x_1,\cdots,x_t} &= \hat{C}_{Y_{+1}Y}(\hat{C}_{YY}+\lambda_T I)^{-1}\hat{m}_{y_t|x_1,\cdots,x_t} = \Phi_{+1}(G_Y + T\lambda_T I)^{-1}G_Y \alpha^{(T)}\\
+\hat{m}_{x_{t+1}|x_1,\cdots,x_t} &= \hat{C}_{XX}(\hat{C}_{YY} + \lambda_{T}I)^{-1}\hat{m}_{y_{t+1}|x_1,\cdots,x_t}
+\end{align}
 \bibliography{note.bib}
 \end{document}
