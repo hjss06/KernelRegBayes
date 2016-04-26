@@ -242,7 +242,7 @@ If $\beta_i < 0$, $\widehat{\cal{E}}_{\lambda,n}$ will not be convex and will no
 \widehat{\cal{E}}_{\lambda,n}^+ = \sum_{i=1}^{n} \beta_i^+ \norm{\phi(Y_i) - \mu_{Y|X}^\pi(X_i)}^2 + \lambda\norm{\mu_{Y|X}^\pi}_\Gamma^2.
 \end{align}
 
-\begin{proposition}
+\begin{proposition}\label{prop:bayes+}
 $\muyxplus = \argmin \eplus$ has the form
 \begin{align}
 \muyxplus = \sum_{i=1}^n \Gamma_{x_i}c_i,
@@ -303,47 +303,67 @@ Some simulations can better illustrate this phenomenon. Using the Gaussian kerne
 \end{figure}
 
 \section{Posterior regularized kernel embeddings}
+\subsection{Max-Margin Regularization}
 We use the hinge loss as an example. Adding the hinge loss regularization to the optimization problem, we get
 \begin{align}
-\cal{L} = \sum_{i=1}^{n} \beta_i^+ \norm{\phi(y_i) - \mu_{Y|X}^\pi(x_i)}^2 + \lambda\norm{\mu_{Y|X}^\pi}_\Gamma^2 + \mu \sum_{i=1}^n \max (0, |\langle f, \mu_{Y|X}^\pi(x_i)\rangle_{Y} - t_i| - \epsilon).
+\cal{L} = \sum_{i=1}^{m} \beta_i^+ \norm{\phi(y_i) - \mu_{Y|X}^\pi(x_i)}^2 + \lambda\norm{\mu_{Y|X}^\pi}_\Gamma^2 + \mu \sum_{i=m+1}^{m+n} \max (0, |\langle f, \mu_{Y|X}^\pi(x_i)\rangle_{Y} - t_i| - \epsilon).
 \end{align}
+Note that $\{(x_1,y_1),(x_2,y_2),\cdots,(x_m,y_m)\}$ is the set of data used to describe the likelihood, while $\{(x_{m+1},t_{m+1}),\cdots,(x_{m+n},t_{m+n}) \}$ is the set of data used for supervising posterior regularization.
+
 The good news is that according to Theorem 4.2 in \cite{micchelli2005learning}, the representer theorem still holds for $\cal{L}$. 
 \begin{proposition}\label{prop:c}
-The solution for $\cal{L}$ has the from $\mu_{Y|X}^\pi(x) = \sum_{i=1}^n \Gamma(x,x_i)c_i$, where $c_i \in \cal{H}_Y$ and $\Gamma(x_1,x_2)$ is the reproducing kernel of $\Gamma$. With the choice that $\Gamma(x_1,x_2) = k(x_1,x_2)\cal{I}$ , we have
+The solution for $\cal{L}$ has the from $\mu_{Y|X}^\pi(x) = \sum_{i=1}^{m+n} \Gamma(x,x_i)c_i$, where $c_i \in \cal{H}_Y$ and $\Gamma(x_1,x_2)$ is the reproducing kernel of $\Gamma$. With the choice that $\Gamma(x_1,x_2) = k(x_1,x_2)\cal{I}$ , we have
 \begin{align}
 c = (\Lambda^+ K+\lambda I)^{-1}\left[\Lambda^+ \Phi + \frac{1}{2}(A^*-A)f\right],\label{eqn:cKinv}
 \end{align}
 where
-\begin{align}
-c &= (c_1,c_2,\cdots,c_n)^\T\\
-f &= \underbrace{(f,f,\cdots,f)^\T}_{n}\\
-A &= \up{diag}(\alpha_1,\alpha_2,\cdots,\alpha_n)\\
-A^* &= \up{diag}(\alpha_1^*,\alpha_2^*,\cdots,\alpha_n^*).
-\end{align}
+\begin{gather}
+c = \begin{pmatrix}
+c_1\\
+c_2\\
+\cdots\\
+c_{m+n}
+\end{pmatrix},\quad 
+f = \begin{pmatrix}
+f\\
+f\\
+\cdots\\
+f
+\end{pmatrix},\quad
+\Phi=\begin{pmatrix}
+\phi(y_1)\\
+\phi(y_2)\\
+\cdots\\
+\phi(y_{m+n})
+\end{pmatrix}\\
+\Lambda^+ = \up{diag}(\beta_1^+,\beta_2^+,\cdots,\beta_m^+,0,\cdots,0)\\
+A = \up{diag}(0,\dots,0,\alpha_{m+1},\alpha_{m+2},\cdots,\alpha_{m+n})\\
+A^* = \up{diag}(0,\cdots,0,\alpha_{m+1}^*,\alpha_{m+2}^*,\cdots,\alpha_{m+n}^*).
+\end{gather}
 
 Moreover, the Lagrange multipliers $\alpha_i$ and $\alpha_i^*$ are given by
 \begin{gather}
 \max_{\alpha,\alpha^*} \big\{ -[\Phi^\T \Lambda^+ K + \frac{1}{2} f^\T (A^* - A)K](K\Lambda^+ K +\lambda K)^{-1}[K\Lambda^+ \Phi + \frac{1}{2} K (A^* - A)f]+ t^\T (\alpha^* - \alpha) - \epsilon 1^\T (\alpha^* + \alpha)\big\}\label{eqn:lagmulti}\\
  s.t.\quad 0 \leq \alpha,\alpha^* \leq \mu,\notag
 \end{gather}
-where $\alpha = (\alpha_1,\alpha_2,\cdots,\alpha_n)$, $\alpha^* = (\alpha_1^*,\alpha_2^*,\cdots,\alpha_n^*)$ and the inequality holds element-wise.
+where $\alpha = (\alpha_{m+1},\alpha_{m+2},\cdots,\alpha_{m+n})$, $\alpha^* = (\alpha_{m+1}^*,\alpha_{m+2}^*,\cdots,\alpha_{m+n}^*)$ and the inequality holds element-wise.
 \end{proposition}
 \begin{proof}
 Apply the representor theorem so that we can reformulate the original problem to be
 \begin{align}
-\min_{c_i,\xi_i,\xi_i^*}\bigg\{ \sum_{i=1}^n \beta_i^+ \bigg(\phi(y_i) - \sum_{j=1}^n k(x_i,x_j)c_j\bigg)^2 + \lambda\bigg(\sum_{i=1}^n k_{x_i}c_i\bigg)^2 + \mu \sum_{i=1}^n (\xi_i + \xi^*_i) \bigg\}
+\min_{c_i,\xi_i,\xi_i^*}\bigg\{ \sum_{i=1}^m \beta_i^+ \bigg(\phi(y_i) - \sum_{j=1}^{m+n} k(x_i,x_j)c_j\bigg)^2 + \lambda\bigg(\sum_{i=1}^{m+n} k_{x_i}c_i\bigg)^2 + \mu \sum_{i=m+1}^{m+n} (\xi_i + \xi^*_i) \bigg\}
 \end{align}
 subjected to
 \begin{align}
-\langle f, \sum_{j=1}^n k(x_i,x_j)c_j \rangle - t_i &\leq \epsilon + \xi_i \label{eqn:xi1}\\
-t_i - \langle f,\sum_{j=1}^n k(x_i,x_j)c_j \rangle &\leq \epsilon + \xi_i^*\label{eqn:xi2}\\
+\langle f, \sum_{j=1}^{m+n} k(x_i,x_j)c_j \rangle - t_i &\leq \epsilon + \xi_i \label{eqn:xi1}\\
+t_i - \langle f,\sum_{j=1}^{m+n} k(x_i,x_j)c_j \rangle &\leq \epsilon + \xi_i^*\label{eqn:xi2}\\
 \xi_i, \xi_i^* &\geq 0
 \end{align}
 We apply the Lagrange duality theory \cite{boyd2004convex} and associate \eqref{eqn:xi1} with $\alpha_i \geq 0$, \eqref{eqn:xi2} with $\alpha_i^* \geq 0$. The Lagrange function is
 \begin{align*}
- \cal{L} &= \sum_{i=1}^n \beta_i^+ \bigg(\phi(y_i) - \sum_{j=1}^n k(x_i,x_j)c_j\bigg)^2 + \lambda\bigg(\sum_{i=1}^n k_{x_i}c_i\bigg)^2 + \mu \sum_{i=1}^n (\xi_i + \xi^*_i)\\
- &+ \sum_{i=1}^n \alpha_i (\langle f,\sum_{j=1}^n k(x_i,x_j)c_j \rangle - t_i - \epsilon -\xi_i)\\
- &+ \sum_{i=1}^n \alpha_i^* (t_i - \langle f,\sum_{j=1}^n k(x_i,x_j)c_j \rangle - \epsilon - \xi_i^*).
+ \cal{L} &= \sum_{i=1}^m \beta_i^+ \bigg(\phi(y_i) - \sum_{j=1}^{m+n} k(x_i,x_j)c_j\bigg)^2 + \lambda\bigg(\sum_{i=1}^{m+n} k_{x_i}c_i\bigg)^2 + \mu \sum_{i=m+1}^{m+n} (\xi_i + \xi^*_i)\\
+ &+ \sum_{i=m+1}^{m+n} \alpha_i (\langle f,\sum_{j=1}^{m+n} k(x_i,x_j)c_j \rangle - t_i - \epsilon -\xi_i)\\
+ &+ \sum_{i=m+1}^{m+n} \alpha_i^* (t_i - \langle f,\sum_{j=1}^{m+n} k(x_i,x_j)c_j \rangle - \epsilon - \xi_i^*).
 \end{align*}
 With some slight abuses of notations, we can briefly denote
 \begin{align}
@@ -362,7 +382,27 @@ This proposition shows that the general solution of this max-margin regularized 
 Another thread is to use \thmref{thm:smola} in case $|\cal{Y}| < \infty$. Since $\langle f, f\rangle_{\cal{H}_Y} = \bf{f}^\T K_Y \bf{f}$, we obtain it! 
 
 The third thread is to treat $\langle f,f\rangle$ as a hyper-parameter, since $f$ is fixed before computing.
-
+\subsection{Pseudo-$l_2$ Regularization}
+The regularized optimization problem to study in this section is
+\begin{align}
+\cal{L} = \sum_{i=1}^{n} \beta_i^+ \norm{\phi(y_i) - \mu_{Y|X}^\pi(x_i)}^2 + \lambda\norm{\mu_{Y|X}^\pi}_\Gamma^2 + \mu \sum_{i=m+1}^{m+n} \norm{\mu_{Y|X}^\pi(x_i) - \phi(t_i)}^2,
+\end{align}
+where $\{(x_1,y_1),\cdots,(x_m,y_m)\}$ is the set of samples for estimating the likelihood and the rest is the data for supervising the posterior regularization.
+\begin{proposition}
+The solution for $\cal{L}$ has the from $\mu_{Y|X}^\pi(x) = \sum_{i=1}^{m+n} \Gamma(x,x_i)c_i$, where $c_i \in \cal{H}_Y$ and $\Gamma(x_1,x_2)$ is the reproducing kernel of $\Gamma$. With the choice that $\Gamma(x_1,x_2) = k(x_1,x_2)\cal{I}$ , we have
+\begin{align}
+\muyxplus(x) = \Phi(G_X + \lambda(\Lambda^+)^{-1})^{-1}K_{:x}
+\end{align}
+where
+\begin{align*}
+\Phi &= (\phi(Y_1,),\phi(Y_2),\cdots,\phi(Y_{m+n}))\\
+K_{:x} &= (K(x,X_1),K(x,X_2),\cdots,K(x,X_{m+n}))^\T\\
+\Lambda^+ &= \up{diag}(\beta_1^+,\beta_2^+,\cdots,\beta_m^+,\mu,\cdots,\mu).
+\end{align*}
+\end{proposition}
+\begin{proof}
+The proof is analogous to that of \propref{prop:bayes+}.
+\end{proof}
 \section{Kernel Posterior Average and Posterior Decoding}
 There are some tweaks for obtaining estimations of the posterior average and the MAP value compared to \cite{song2013kernel}, since we introduce $f$ in the expression of kernel posterior embedding. After obtaining the estimation of kernel regularized posterior $\mu_{Y|X}^\pi(x) = \sum_{i=1}^n \gamma_i(x) \phi(y_i) + \gamma(x) f$, the average of any other function $g$ should be computed as $\langle g, \mu_{Y|X}^\pi(x)\rangle = \sum_{i=1}^{n} \gamma_i(x)g(y_i) + \gamma(x) \langle g,f\rangle$, and the MAP value can obtained by finding the closest kernel mapping to the kernel posterior regularized embedding, i.e., $\hat{y} = \argmax_{y} \|\mu_{Y|X}^\pi(x) - \phi(y)\|^2 = \argmin_{y} \{ %\sum_{ij}\gamma_i(x)\gamma_j(x)k(y_i,y_j) + 2\sum_i \gamma_i(x)\gamma(x)f(y_i) %+ \gamma^2(x)\langle f,f\rangle 
 - 2\sum_i\gamma_i(x)k(y_i,y) - 2\gamma(x)f(y) + k(y,y)\}$. 
