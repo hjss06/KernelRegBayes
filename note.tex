@@ -382,7 +382,35 @@ This proposition shows that the general solution of this max-margin regularized 
 Another thread is to use \thmref{thm:smola} in case $|\cal{Y}| < \infty$. Since $\langle f, f\rangle_{\cal{H}_Y} = \bf{f}^\T K_Y \bf{f}$, we obtain it! 
 
 The third thread is to treat $\langle f,f\rangle$ as a hyper-parameter, since $f$ is fixed before computing.
-\subsection{Pseudo-$l_2$ Regularization}
+
+\subsubsection{Side note: how to compute $\norm{f}$}
+If we already know the value of $f$'s on a fixed set of data points, can we interpolate those data points and compute the norm of the interpolate function? 
+
+\begin{theorem}
+Given a set of evaluations $\{(x_1,y_1),(x_2,y_2)\cdots,(x_n,y_n)\}$, and the assumption that evaluation functionals $L_{x_1},L_{x_2},\cdots,L_{x_n}$ are in general position, we can get a function $f \in \cal{H}$ with $f(x_i) = y_i$, and $\langle f,f\rangle$ as the solution of the following quadratic optimization problem:
+\begin{gather*}
+\inf_{t_1,\cdots,t_n} \sum_{i=1}^n\sum_{j=1}^n t_it_j k(x_i,x_j)\\
+s.t.\quad \sum_{i=1}^n t_i y_i = 1
+\end{gather*}
+\end{theorem}
+\begin{proof}
+Suppose we have $(x_1,y_1),(x_2,y_2),\cdots,(x_n,y_n)$. For each $f \in \cal{H}$, where $\cal{H}$ is a RKHS with kernel function $k(\cdot,\cdot)$, we view $f$ as a functional on $\cal{H}^*$ since $\cal{H}$ is reflective. Under the assumption that evaluation functionals $L_{x_1},L_{x_2},\cdots,L_{x_n}$ are in \textit{general position}, we define $f$ on $\cal{G} = \up{span} \{L_{x_1},L_{x_2},\cdots,L_{x_n}\}$ to be 
+\begin{align}
+f(\sum_i t_i L_{x_i}) = \sum_i t_i y_i,
+\end{align}
+where obviously $f(x_i) = y_i$. According to the Hahn-Banach theorem, $f$ can be extended to $\cal{H}$ preserving the norm and values on $\cal{G}$. Now the task is to calculate $\norm{f}_{\cal{G}} = \norm{f}_{\cal{H}}$.
+
+From the definition of norms of functionals, we have that
+\begin{align}
+\norm{f} &= \sup_{t_{1:n}} \frac{|\sum_i t_i y_i|}{\norm{\sum_i t_i L_{x_i}}}\\
+&= \sup_{t_{1:n}} \frac{|\sum_i t_i y_i|}{\sqrt{\sum_{ij} t_i t_j k(x_i,x_j)}}\\
+&= \inf_{t_{1:n}} \sqrt{\sum_{ij} t_i t_j k(x_i,x_j)}\\
+& \quad s.t. \sum_i t_i y_i = 1.
+\end{align}
+\end{proof}
+
+
+\subsection{L2 Regularization}
 The regularized optimization problem to study in this section is
 \begin{align}
 \cal{L} = \sum_{i=1}^{m} \beta_i^+ \norm{\phi(y_i) - \mu_{Y|X}^\pi(x_i)}^2 + \lambda\norm{\mu_{Y|X}^\pi}_\Gamma^2 + \mu \sum_{i=m+1}^{m+n} \norm{\mu_{Y|X}^\pi(x_i) - \phi(t_i)}^2,
