@@ -306,15 +306,15 @@ Some simulations can better illustrate this phenomenon. Using the Gaussian kerne
 \subsection{Max-Margin Regularization}
 We use the hinge loss as an example. Adding the hinge loss regularization to the optimization problem, we get
 \begin{align}
-\cal{L} = \sum_{i=1}^{m} \beta_i^+ \norm{\phi(y_i) - \mu_{Y|X}^\pi(x_i)}^2 + \lambda\norm{\mu_{Y|X}^\pi}_\Gamma^2 + \mu \sum_{i=m+1}^{m+n} \max (0, |\langle f, \mu_{Y|X}^\pi(x_i)\rangle_{Y} - t_i| - \epsilon).
+\cal{L} = \sum_{i=1}^{m} \beta_i^+ \norm{\phi(y_i) - \mu_{Y|X}^\pi(x_i)}^2 + \lambda\norm{\mu_{Y|X}^\pi}_\Gamma^2 + \mu \sum_{i=m+1}^{n} \max (0, |\langle f, \mu_{Y|X}^\pi(x_i)\rangle_{Y} - t_i| - \epsilon).
 \end{align}
-Note that $\{(x_1,y_1),(x_2,y_2),\cdots,(x_m,y_m)\}$ is the set of data used to describe the likelihood, while $\{(x_{m+1},t_{m+1}),\cdots,(x_{m+n},t_{m+n}) \}$ is the set of data used for supervising posterior regularization.
+Note that $\{(x_1,y_1),(x_2,y_2),\cdots,(x_m,y_m)\}$ is the set of data used to describe the likelihood, while $\{(x_{m+1},t_{m+1}),\cdots,(x_{n},t_{n}) \}$ is the set of data used for supervising posterior regularization.
 
 The good news is that according to Theorem 4.2 in \cite{micchelli2005learning}, the representer theorem still holds for $\cal{L}$. 
 \begin{proposition}\label{prop:c}
-The solution for $\cal{L}$ has the from $\mu_{Y|X}^\pi(x) = \sum_{i=1}^{m+n} \Gamma(x,x_i)c_i$, where $c_i \in \cal{H}_Y$ and $\Gamma(x_1,x_2)$ is the reproducing kernel of $\Gamma$. With the choice that $\Gamma(x_1,x_2) = k(x_1,x_2)\cal{I}$ , we have
+The solution for $\cal{L}$ has the from $\mu_{Y|X}^\pi(x) = \sum_{i=1}^{n} \Gamma(x,x_i)c_i$, where $c_i \in \cal{H}_Y$ and $\Gamma(x_1,x_2)$ is the reproducing kernel of $\Gamma$. With the choice that $\Gamma(x_1,x_2) = k(x_1,x_2)\cal{I}$ , we have
 \begin{align}
-c = (\Lambda^+ K+\lambda I)^{-1}\left[\Lambda^+ \Phi + \frac{1}{2}(A^*-A)f\right],\label{eqn:cKinv}
+c = (K_{xX}\Lambda^+K_{Xx}+\lambda K_{xx})^{-1}\left[K_{xX}\Lambda^+ \Phi + \frac{1}{2}K_{xx}(A^*-A)f\right],\label{eqn:cKinv}
 \end{align}
 where
 \begin{gather}
@@ -322,7 +322,7 @@ c = \begin{pmatrix}
 c_1\\
 c_2\\
 \cdots\\
-c_{m+n}
+c_{n}
 \end{pmatrix},\quad 
 f = \begin{pmatrix}
 f\\
@@ -334,48 +334,49 @@ f
 \phi(y_1)\\
 \phi(y_2)\\
 \cdots\\
-\phi(y_{m+n})
+\phi(y_{m})
 \end{pmatrix}\\
-\Lambda^+ = \up{diag}(\beta_1^+,\beta_2^+,\cdots,\beta_m^+,0,\cdots,0)\\
-A = \up{diag}(0,\dots,0,\alpha_{m+1},\alpha_{m+2},\cdots,\alpha_{m+n})\\
-A^* = \up{diag}(0,\cdots,0,\alpha_{m+1}^*,\alpha_{m+2}^*,\cdots,\alpha_{m+n}^*).
+(K_{Xx})_{i=1:m,j=1:n} = k(x_i,x_j),\quad K_{xX} = K_{Xx}^\T,\quad (K_{xx})_{i=1:n,j=1:n} = k(x_i,x_j)\\
+\Lambda^+ = \up{diag}(\beta_1^+,\beta_2^+,\cdots,\beta_m^+)\\
+A = \up{diag}(0,\dots,0,\alpha_{m+1},\alpha_{m+2},\cdots,\alpha_{n})\\
+A^* = \up{diag}(0,\cdots,0,\alpha_{m+1}^*,\alpha_{m+2}^*,\cdots,\alpha_{n}^*).
 \end{gather}
 
 Moreover, the Lagrange multipliers $\alpha_i$ and $\alpha_i^*$ are given by
 \begin{gather}
-\max_{\alpha,\alpha^*} \big\{ -[\Phi^\T \Lambda^+ K + \frac{1}{2} f^\T (A^* - A)K](K\Lambda^+ K +\lambda K)^{-1}[K\Lambda^+ \Phi + \frac{1}{2} K (A^* - A)f]+ t^\T (\alpha^* - \alpha) - \epsilon 1^\T (\alpha^* + \alpha)\big\}\label{eqn:lagmulti}\\
+\inf_{\alpha,\alpha^*} \big\{ [\Phi^\T \Lambda^+ K_{Xx} + \frac{1}{2} f^\T (A^* - A)K_{xx}](K_{xX}\Lambda^+ K_{Xx} +\lambda K_{xx})^{-1}[K_{xX}\Lambda^+\Phi + \frac{1}{2} K_{xx} (A^* - A)f]\notag\\+ t^\T (\alpha^* - \alpha) - \epsilon 1^\T (\alpha^* + \alpha)\big\}\label{eqn:lagmulti}\\
  s.t.\quad 0 \leq \alpha,\alpha^* \leq \mu,\notag
 \end{gather}
-where $\alpha = (\alpha_{m+1},\alpha_{m+2},\cdots,\alpha_{m+n})$, $\alpha^* = (\alpha_{m+1}^*,\alpha_{m+2}^*,\cdots,\alpha_{m+n}^*)$ and the inequality holds element-wise.
+where $\alpha = (\alpha_{m+1},\alpha_{m+2},\cdots,\alpha_{n})$, $\alpha^* = (\alpha_{m+1}^*,\alpha_{m+2}^*,\cdots,\alpha_{n}^*)$ and the inequality holds element-wise.
 \end{proposition}
 \begin{proof}
 Apply the representor theorem so that we can reformulate the original problem to be
 \begin{align}
-\min_{c_i,\xi_i,\xi_i^*}\bigg\{ \sum_{i=1}^m \beta_i^+ \bigg(\phi(y_i) - \sum_{j=1}^{m+n} k(x_i,x_j)c_j\bigg)^2 + \lambda\bigg(\sum_{i=1}^{m+n} k_{x_i}c_i\bigg)^2 + \mu \sum_{i=m+1}^{m+n} (\xi_i + \xi^*_i) \bigg\}
+\min_{c_i,\xi_i,\xi_i^*}\bigg\{ \sum_{i=1}^m \beta_i^+ \bigg(\phi(y_i) - \sum_{j=1}^{n} k(x_i,x_j)c_j\bigg)^2 + \lambda\bigg(\sum_{i=1}^{n} k_{x_i}c_i\bigg)^2 + \mu \sum_{i=m+1}^{n} (\xi_i + \xi^*_i) \bigg\}
 \end{align}
 subjected to
 \begin{align}
-\langle f, \sum_{j=1}^{m+n} k(x_i,x_j)c_j \rangle - t_i &\leq \epsilon + \xi_i \label{eqn:xi1}\\
-t_i - \langle f,\sum_{j=1}^{m+n} k(x_i,x_j)c_j \rangle &\leq \epsilon + \xi_i^*\label{eqn:xi2}\\
+\langle f, \sum_{j=1}^{n} k(x_i,x_j)c_j \rangle - t_i &\leq \epsilon + \xi_i \label{eqn:xi1}\\
+t_i - \langle f,\sum_{j=1}^{n} k(x_i,x_j)c_j \rangle &\leq \epsilon + \xi_i^*\label{eqn:xi2}\\
 \xi_i, \xi_i^* &\geq 0
 \end{align}
 We apply the Lagrange duality theory \cite{boyd2004convex} and associate \eqref{eqn:xi1} with $\alpha_i \geq 0$, \eqref{eqn:xi2} with $\alpha_i^* \geq 0$. The Lagrange function is
 \begin{align*}
- \cal{L} &= \sum_{i=1}^m \beta_i^+ \bigg(\phi(y_i) - \sum_{j=1}^{m+n} k(x_i,x_j)c_j\bigg)^2 + \lambda\bigg(\sum_{i=1}^{m+n} k_{x_i}c_i\bigg)^2 + \mu \sum_{i=m+1}^{m+n} (\xi_i + \xi^*_i)\\
- &+ \sum_{i=m+1}^{m+n} \alpha_i (\langle f,\sum_{j=1}^{m+n} k(x_i,x_j)c_j \rangle - t_i - \epsilon -\xi_i)\\
- &+ \sum_{i=m+1}^{m+n} \alpha_i^* (t_i - \langle f,\sum_{j=1}^{m+n} k(x_i,x_j)c_j \rangle - \epsilon - \xi_i^*).
+ \cal{L} &= \sum_{i=1}^m \beta_i^+ \bigg(\phi(y_i) - \sum_{j=1}^{n} k(x_i,x_j)c_j\bigg)^2 + \lambda\bigg(\sum_{i=1}^{n} k_{x_i}c_i\bigg)^2 + \mu \sum_{i=m+1}^{n} (\xi_i + \xi^*_i)\\
+ &+ \sum_{i=m+1}^{n} \alpha_i (\langle f,\sum_{j=1}^{n} k(x_i,x_j)c_j \rangle - t_i - \epsilon -\xi_i)\\
+ &+ \sum_{i=m+1}^{n} \alpha_i^* (t_i - \langle f,\sum_{j=1}^{n} k(x_i,x_j)c_j \rangle - \epsilon - \xi_i^*).
 \end{align*}
-With some slight abuses of notations, we can briefly denote
+Now we introduce ad-hoc matrix notations to write $\cal{L}$ in a concise way, where $b^\T A c := \sum_{ij} a_{ij}\langle b_i,c_j\rangle$.
 \begin{align}
-\cal{L} = c^\T (K\Lambda^+ K + \lambda K)c - (2\Phi^\T \Lambda^+ K + f^\T A^* K - f^\T A K)c + t^\T (\alpha^* - \alpha) - \epsilon 1^\T (\alpha^* + \alpha) + \text{const}.
+\cal{L} = c^\T (K_{xX}\Lambda^+ K_{Xx} + \lambda K_{xx})c - (2\Phi^\T \Lambda^+ K_{Xx} + f^\T(A^*-A)K_{xx})c + t^\T (\alpha^* - \alpha) - \epsilon 1^\T (\alpha^* + \alpha) + C.
 \end{align}
-In the computation of the above matrix expression, the multiplication of RKHS vectors is defined in terms of inner products, e.g., $c_i \cdot f = \langle f, c_i \rangle$. We also implicitly eliminate $\xi_i$ and $\xi_i^*$ by substituting in their optimal values. Moreover,
+Note that we implicitly eliminate $\xi_i$ and $\xi_i^*$ by substituting their optimal values. Moreover,
 \begin{align}
-c^* := \argmin_c \cal{L} = (K\Lambda^+ K + \lambda K)^{-1} \left[ K\Lambda^+ \Phi + \frac{1}{2}K(A^* - A)f \right].
+c^* := \argmin_c \cal{L} = (K_{xX}\Lambda^+K_{Xx}+\lambda K_{xx})^{-1}\left[K_{xX}\Lambda^+ \Phi + \frac{1}{2}K_{xx}(A^*-A)f\right].
 \end{align}
-If we assume that $K$ is non-singular, we can obtain \eqref{eqn:cKinv} immediately. If not, we use the limit of $c^*$ when $K$ tends to be singular as a replacement, which is still \eqref{eqn:cKinv}.
+where we obtain \eqref{eqn:cKinv}.
 
-Substitute $c^*$ into $\cal{L}$, we can get the optimization problem \eqref{eqn:lagmulti}. 
+Substituting $c^*$ into $\cal{L}$, we can get the optimization problem \eqref{eqn:lagmulti}. 
 \end{proof}
 This proposition shows that the general solution of this max-margin regularized posterior inference problem $\cal{L}$ is $\mu_{Y|X}(x) = \sum_{i=1}^n \gamma_i(x) \phi(y_i) + \gamma(x) f$. However, if we want to calculate $\mu_{Y|X}(x)$ with numerical methods, we first need to calculate or approximate $\langle f,f \rangle$. This can be easily obtained if $f = \sum_j f_j\phi(y_j')$. For general kernels, such decompositions of any function to sum of feature maps are not trivial. However, finite dimension approximations \cite{rahimi2007random}\cite{oliva2015bayesian} are available to approximate the feature maps of an infinite dimensional RKHS by Schmit orthogonalization. For some special kernels like the Gaussian RBF kernel, we can find an orthnormalized base (ONB) explicitly \cite{steinwart2006explicit}. Both of the approaches can enable us to write $f$ as an expansion of some feature maps, i.e., $f = \sum_{i=1}^{m} f_i\phi(y_i')$. {\color{red} Work to be done.} 
 
@@ -387,11 +388,11 @@ The third thread is to treat $\langle f,f\rangle$ as a hyper-parameter, since $f
 If we already know the value of $f$'s on a fixed set of data points, can we interpolate those data points and compute the norm of the interpolate function? 
 
 \begin{theorem}
-Given a set of evaluations $\{(x_1,y_1),(x_2,y_2)\cdots,(x_n,y_n)\}$, and the assumption that evaluation functionals $L_{x_1},L_{x_2},\cdots,L_{x_n}$ are in general position, we can get a function $f \in \cal{H}$ with $f(x_i) = y_i$, and $\langle f,f\rangle$ as the solution of the following quadratic optimization problem:
-\begin{gather*}
-\inf_{t_1,\cdots,t_n} \sum_{i=1}^n\sum_{j=1}^n t_it_j k(x_i,x_j)\\
-s.t.\quad \sum_{i=1}^n t_i y_i = 1
-\end{gather*}
+Given a set of evaluations $\{(x_1,y_1),(x_2,y_2)\cdots,(x_n,y_n)\}$, and the assumption that evaluation functionals $L_{x_1},L_{x_2},\cdots,L_{x_n}$ are in general position, we can get a function $f \in \cal{H}$ with $f(x_i) = y_i$, and 
+\begin{equation}
+\langle f,f\rangle = \frac{(\bf{y}^\T K^{-1} \bf{y})^2}{\bf{y}^\T (K^2)^{-1}\bf{y}},
+\end{equation}
+where $\bf{y} = (y_1,y_2,\cdots,y_n)^\T$ and $K_{ij} = k(x_i,x_j)$.
 \end{theorem}
 \begin{proof}
 Suppose we have $(x_1,y_1),(x_2,y_2),\cdots,(x_n,y_n)$. For each $f \in \cal{H}$, where $\cal{H}$ is a RKHS with kernel function $k(\cdot,\cdot)$, we view $f$ as a functional on $\cal{H}^*$ since $\cal{H}$ is reflective. Under the assumption that evaluation functionals $L_{x_1},L_{x_2},\cdots,L_{x_n}$ are in \textit{general position}, we define $f$ on $\cal{G} = \up{span} \{L_{x_1},L_{x_2},\cdots,L_{x_n}\}$ to be 
@@ -404,12 +405,16 @@ From the definition of norms of functionals, we have that
 \begin{align}
 \norm{f} &= \sup_{t_{1:n}} \frac{|\sum_i t_i y_i|}{\norm{\sum_i t_i L_{x_i}}}\\
 &= \sup_{t_{1:n}} \frac{|\sum_i t_i y_i|}{\sqrt{\sum_{ij} t_i t_j k(x_i,x_j)}}\\
-&= \inf_{t_{1:n}} \sqrt{\sum_{ij} t_i t_j k(x_i,x_j)}\\
-& \quad s.t. \sum_i t_i y_i = 1.
+&= \frac{1}{\inf_{t_{1:n}} \sqrt{\sum_{ij} t_i t_j k(x_i,x_j)}}\\
+& \quad s.t. \quad \sum_i t_i y_i = 1.
 \end{align}
 \end{proof}
-
-
+In order to obtain $\langle f,f\rangle$, we need to solve
+\begin{gather*}
+\frac{1}{\langle f,f\rangle} = \inf_{t_1,\cdots,t_n} \sum_{i=1}^n\sum_{j=1}^n t_it_j k(x_i,x_j)\\
+s.t.\quad \sum_{i=1}^n t_i y_i = 1,
+\end{gather*}
+which can be solved analytically via Lagrange multipliers to give the result in the theorem.
 \subsection{L2 Regularization}
 The regularized optimization problem to study in this section is
 \begin{align}
@@ -423,7 +428,7 @@ The solution for $\cal{L}$ has the from $\mu_{Y|X}^\pi(x) = \sum_{i=1}^{m+n} \Ga
 \end{align}
 where
 \begin{align*}
-\Phi &= (\phi(Y_1,),\phi(Y_2),\cdots,\phi(Y_{m+n}))\\
+\Phi &= (\phi(Y_1),\phi(Y_2),\cdots,\phi(Y_{m+n}))\\
 K_{:x} &= (K(x,X_1),K(x,X_2),\cdots,K(x,X_{m+n}))^\T\\
 \Lambda^+ &= \up{diag}(\beta_1^+,\beta_2^+,\cdots,\beta_m^+,\mu,\cdots,\mu).
 \end{align*}
@@ -522,6 +527,18 @@ We can use $(\widehat{\mu}_Z^\pi)^+$ as an approximation when $|\cal{Z}| = \inft
 \begin{remark}
 Another ad hoc method is to use $\beta$ directly instead of $\beta^+$ when $|\cal{Z}| = \infty$. Although this will make the optimization problem non-convex and even do not have minima, we can use it as an approximation. There are examples where people use techniques developed and proved for convex problems to non-convex optimization, such as deep neural network training methods \cite{nesterov1983method}\cite{duchi2011adaptive}. ({\color{red}remains to be examined by experiments})
 \end{remark}
+\section{Normalization}
+For implementation purpose, we usually normalize a kernel mean estimator for numerical stability.
+\begin{theorem}
+Suppose $\cal{H}$ is a RKHS with a universal kernel. If $\bar{u} = \sum_{i=1}^n \beta_i \phi(x_i)$ is a consistent estimator for a kernel mean $\mu$ in $\cal{H}$, then the normalized estimator
+\begin{align}
+\hat{\mu} = \sum_{i=1}^n \hat{\beta}_i \phi(x_i)
+\end{align}
+where $\hat{\beta}_i = \frac{\beta_i}{\sum_{i=1}^n \beta_i}$ is also a consistent estimator for $\mu$.
+\end{theorem}
+\begin{proof}
+Since $\cal{H}$ is dense in $C_0(\cal{X})$, we can choose a sequence of functions $\{f_1,f_2,\cdots,f_n,\cdots\}, f_i \in \cal{H}$ which uniformly converges to the constant $1$. 
+\end{proof}
 \section{Experiments}
 \subsection{Kernel Filtering}
 \paragraph{Training:}
@@ -554,36 +571,39 @@ Ignoring process noise and observation noise, we assume that the states and obse
 \begin{align}
 \hat{m}_{y_t|x_1,\cdots,x_t} = \sum_{i=1}^T \alpha_i^{(t)} \phi(Y_i) + \sum_{i=1}^N \tilde{\alpha}_i^{(t)} \phi(\tilde{Y}_i)
 \end{align}
-As long as we set $\tilde{\alpha} = 0$
+Similar to what we did before,
 \begin{align}
 \hat{m}_{y_{t+1}\mid x_1,\cdots,x_t} &= \hat{C}_{Y_{+}Y}(\hat{C}_{YY}+\lambda_T I)^{-1}\hat{m}_{y_t\mid x_1,\cdots,x_t} \\
-&= \Phi_{+}\cal{G}_Y(G_Y\cal{G}_Y + T\lambda_T \cal{G}_Y)^{-1}\cal{G}_Y \begin{pmatrix}
+&= \Phi_{+}G_{Yy}(G_{yY}G_{Yy} + T\lambda_T G_{yy})^{-1}G_{yy} \begin{pmatrix}
 \alpha^{(t)}\\
 \tilde{\alpha}^{(t)}
 \end{pmatrix}\\
 \hat{m}_{x_{t+1}\mid x_1,\cdots,x_t} &= \hat{C}_{XY}(\hat{C}_{YY} + \lambda_{T}I)^{-1}\hat{m}_{y_{t+1}|x_1,\cdots,x_t} \\
-&= \Psi(G_{Y} + T\lambda_T I)^{-1} G_{YY_+}\cal{G}_Y(G_Y\cal{G}_Y + T\lambda_T \cal{G}_Y)^{-1}\cal{G}_Y \begin{pmatrix}
+&= \Psi(G_{Y} + T\lambda_T I)^{-1} G_{YY_+}G_{Yy}(G_{yY}G_{Yy} + T\lambda_T G_{yy})^{-1}G_{yy} \begin{pmatrix}
 \alpha^{(t)}\\
 \tilde{\alpha}^{(t)}
 \end{pmatrix},
 \end{align}
-where
+where $(G_{YY})_{ij} = K(Y_i,Y_j)$,
 $
-\cal{G}_Y = \begin{pmatrix}
-G_Y, \tilde{G}_Y
+G_{Yy} = \begin{pmatrix}
+G_{YY}, G_{Y\tilde{Y}}
 \end{pmatrix}
-$
-and $(\tilde{G}_Y)_{ij} = K(Y_i,\tilde{Y}_j)$. Since $G_Y\cal{G}_Y + T\lambda_T \cal{G}_Y$ is singular, the inverse of it means solving an indefinite linear equation.
+$,$G_{yY} = G_{Yy}^\T$ and $G_{yy} = \begin{pmatrix}
+G_{YY} & G_{Y\tilde{Y}}\\
+G_{\tilde{Y}Y} & G_{\tilde{Y}\tilde{Y}}
+\end{pmatrix}$.
 
 According to \eqref{eqn:l2reg}, we obtain $\hat{m}_{y_{t+1}\mid x_1,\cdots,x_{t+1}}$,
 \begin{align}
 &\hat{m}_{y_{t+1}\mid x_1,\cdots,x_{t+1}} = \Phi(G_X' + \delta_T (\Lambda^+)^{-1})^{-1} K_{:x_{t+1}}',\\
 \Leftrightarrow& \alpha^{(t+1)} = (G_X' + \delta_T (\Lambda^+)^{-1})^{-1} K_{:x_{t+1}}'
 \end{align}
-where $\Lambda^+ = \up{diag}(\bs{\beta}^+,\mu)$, $\bs{\beta} = (G_Y + T\lambda_T I)^{-1}G_{YY+}\cal{G}_Y(G_Y\cal{G}_Y + T\lambda_T \cal{G}_Y)^{-1}\cal{G}_Y \begin{pmatrix}
+where $\Lambda^+ = \up{diag}(\bs{\beta}^+,\mu)$, $\bs{\beta} = (G_Y + T\lambda_T I)^{-1}G_{YY_+}G_{Yy}(G_{yY}G_{Yy} + T\lambda_T G_{yy})^{-1}G_{yy} \begin{pmatrix}
 \alpha^{(t)}\\
 \tilde{\alpha}^{(t)}
 \end{pmatrix}$ and $G_X'$ and $K_{:x_{t+1}}'$ incorporates $K(\tilde{x}_{t+1},\cdot)$.
+\paragraph{Max-Margin Filtering:} 
 \paragraph{Posterior Decoding:} The kernel means for the states can always be written as $\hat{m}_{y_t|x_1,\cdots,x_t} = \sum_{i=1}^T \alpha_i^{(t)}\phi(Y_i)$. As before, the optimization problem $\hat{Y}_i = \argmin_{y}\norm{\sum_{i=1}^T \alpha_i^{(t)}\phi(Y_i) - \phi(y)}^2$ yields $\hat{Y}_i = \argmin_y \{ k(y,y) - 2\sum_{i=1}^T \alpha_i^{(t)}k(y_i,y)\}$. For Gaussian kernel, there is a fixed point iteration method
 \begin{align}
 y^{(t+1)} = \frac{\sum_{i=1}^n Y_i \alpha_i^{(t)}\exp(-\norm{Y_i-y^{(t)}}^2/(2\sigma^2))}{\sum_{i=1}^n \alpha_i^{(t)}\exp(-\norm{Y_i-y^{(t)}}^2/(2\sigma^2))}.
