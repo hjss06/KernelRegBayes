@@ -66,15 +66,16 @@
 \newcommand{\be}{\begin{equation}}
 \newcommand{\ee}{\end{equation}}
 
-
-
 \def\eg{\emph{e.g}\onedot} 
 \def\Eg{\emph{E.g}\onedot}
 \def\ie{\emph{i.e}\onedot} 
 \def\Ie{\emph{I.e}\onedot}
-\def\cf{\emph{cf}\onedot} \def\Cf{\emph{Cf}\onedot}
-\def\etc{\emph{etc}\onedot} \def\vs{\emph{vs}\onedot}
-\def\wrt{w.r.t\onedot} \def\dof{d.o.f\onedot}
+\def\cf{\emph{cf}\onedot} 
+\def\Cf{\emph{Cf}\onedot}
+\def\etc{\emph{etc}\onedot} 
+\def\vs{\emph{vs}\onedot}
+\def\wrt{w.r.t\onedot}
+\def\dof{d.o.f\onedot}
 \def\etal{\emph{et al}\onedot}
 \DeclareRobustCommand{\hsout}[1]{\texorpdfstring{\sout{#1}}{#1}}
 \bibliographystyle{ieeetr} 
@@ -271,7 +272,7 @@ which means $f_0=\sum_{i\leq n}\Gamma_{x_i}c_i$ is the minimizer of $\eplus$.
 \end{proof}
 If we choose the kernel of $\Gamma$ to be $\Gamma(x_1,x_2) = K(x_1,x_2)\cal{I}$, where $\cal{I}$ is the identical map in $\cal{H}_Y$, we can get the estimator to be
 \begin{align}
-\boxed{\muyxplus(x) = \Phi(G_X + \lambda(\Lambda^+)^{-1})^{-1}K_{:x}}\label{eqn:bayes},
+\boxed{\muyxplus(x) = \Phi(K_X + \lambda(\Lambda^+)^{-1})^{-1}K_{:x}}\label{eqn:bayes},
 \end{align}
 where
 \begin{align*}
@@ -378,7 +379,7 @@ where we obtain \eqref{eqn:cKinv}.
 
 Substituting $c^*$ into $\cal{L}$, we can get the optimization problem \eqref{eqn:lagmulti}. 
 \end{proof}
-This proposition shows that the general solution of this max-margin regularized posterior inference problem $\cal{L}$ is $\mu_{Y|X}(x) = \sum_{i=1}^n \gamma_i(x) \phi(y_i) + \gamma(x) f$. However, if we want to calculate $\mu_{Y|X}(x)$ with numerical methods, we first need to calculate or approximate $\langle f,f \rangle$. This can be easily obtained if $f = \sum_j f_j\phi(y_j')$. For general kernels, such decompositions of any function to sum of feature maps are not trivial. However, finite dimension approximations \cite{rahimi2007random}\cite{oliva2015bayesian} are available to approximate the feature maps of an infinite dimensional RKHS by Schmit orthogonalization. For some special kernels like the Gaussian RBF kernel, we can find an orthnormalized base (ONB) explicitly \cite{steinwart2006explicit}. Both of the approaches can enable us to write $f$ as an expansion of some feature maps, i.e., $f = \sum_{i=1}^{m} f_i\phi(y_i')$. {\color{red} Work to be done.} 
+This proposition shows that the general solution of this max-margin regularized posterior inference problem $\cal{L}$ is $\mu_{Y|X}(x) = \sum_{i=1}^n \gamma_i(x) \phi(y_i) + \gamma(x) f$. However, if we want to calculate $\mu_{Y|X}(x)$ with numerical methods, we first need to calculate or approximate $\langle f,f \rangle$. This can be easily obtained if $f = \sum_j f_j\phi(y_j')$. For general kernels, such decompositions of any function to sum of feature maps are not trivial. However, finite dimension approximations \cite{rahimi2007random}\cite{oliva2015bayesian} are available to approximate the feature maps of an infinite dimensional RKHS by Schmit orthogonalization. For some special kernels like the Gaussian RBF kernel, we can find an orthnormalized base (ONB) explicitly \cite{steinwart2006explicit}. Both of the approaches can enable us to write $f$ as an expansion of some feature maps, i.e., $f = \sum_{i=1}^{m} f_i\phi(y_i')$.
 
 Another thread is to use \thmref{thm:smola} in case $|\cal{Y}| < \infty$. Since $\langle f, f\rangle_{\cal{H}_Y} = \bf{f}^\T K_Y \bf{f}$, we obtain it! 
 
@@ -418,18 +419,18 @@ which can be solved analytically via Lagrange multipliers to give the result in 
 \subsection{L2 Regularization}
 The regularized optimization problem to study in this section is
 \begin{align}
-\cal{L} = \sum_{i=1}^{m} \beta_i^+ \norm{\phi(y_i) - \mu_{Y|X}^\pi(x_i)}^2 + \lambda\norm{\mu_{Y|X}^\pi}_\Gamma^2 + \mu \sum_{i=m+1}^{m+n} \norm{\mu_{Y|X}^\pi(x_i) - \phi(t_i)}^2,
+\cal{L} = \sum_{i=1}^{m} \beta_i^+ \norm{\phi(y_i) - \mu_{Y|X}^\pi(x_i)}^2 + \lambda\norm{\mu_{Y|X}^\pi}_\Gamma^2 + \mu \sum_{i=m+1}^{n} \norm{\mu_{Y|X}^\pi(x_i) - \phi(t_i)}^2,
 \end{align}
 where $\{(x_1,y_1),\cdots,(x_m,y_m)\}$ is the set of samples for estimating the likelihood and the rest is the data for supervising the posterior regularization.
 \begin{proposition}
-The solution for $\cal{L}$ has the from $\mu_{Y|X}^\pi(x) = \sum_{i=1}^{m+n} \Gamma(x,x_i)c_i$, where $c_i \in \cal{H}_Y$ and $\Gamma(x_1,x_2)$ is the reproducing kernel of $\Gamma$. With the choice that $\Gamma(x_1,x_2) = k(x_1,x_2)\cal{I}$ , we have
+The solution for $\cal{L}$ has the from $\mu_{Y|X}^\pi(x) = \sum_{i=1}^{n} \Gamma(x,x_i)c_i$, where $c_i \in \cal{H}_Y$ and $\Gamma(x_1,x_2)$ is the reproducing kernel of $\Gamma$. With the choice that $\Gamma(x_1,x_2) = k(x_1,x_2)\cal{I}$ , we have
 \begin{align}
 \muyxplus(x) = \Phi(G_X + \lambda(\Lambda^+)^{-1})^{-1}K_{:x}\label{eqn:l2reg}
 \end{align}
 where
 \begin{align*}
-\Phi &= (\phi(Y_1),\phi(Y_2),\cdots,\phi(Y_{m+n}))\\
-K_{:x} &= (K(x,X_1),K(x,X_2),\cdots,K(x,X_{m+n}))^\T\\
+\Phi &= (\phi(Y_1),\phi(Y_2),\cdots,\phi(Y_{n}))\\
+K_{:x} &= (K(x,X_1),K(x,X_2),\cdots,K(x,X_{n}))^\T\\
 \Lambda^+ &= \up{diag}(\beta_1^+,\beta_2^+,\cdots,\beta_m^+,\mu,\cdots,\mu).
 \end{align*}
 \end{proposition}
@@ -539,6 +540,7 @@ where $\hat{\beta}_i = \frac{\beta_i}{\sum_{i=1}^n \beta_i}$ is also a consisten
 \begin{proof}
 Since $\cal{H}$ is dense in $C_0(\cal{X})$, we can choose a sequence of functions $\{f_1,f_2,\cdots,f_n,\cdots\}, f_i \in \cal{H}$ which uniformly converges to the constant $1$. 
 \end{proof}
+{\color{red} I cannot finish the proof here. It seems that this can only hold for discrete cases. Also empirically it's not necessary to normalize the kernel means if the parameters are appropriate.}
 \section{Experiments}
 \subsection{Kernel Filtering}
 \paragraph{Training:}
@@ -559,8 +561,8 @@ The update rule for $\alpha^{(t+1)}(x_1,\cdots,x_{t+1})$ can be derived by a pre
 \end{align}
 where $\hat{m}_{x_{t+1}\mid x_1,\cdots,x_t}$ is the embedding for prediction. According to \eqref{eqn:bayes}, we can obtain $\hat{m}_{y_{t+1}\mid x_1,\cdots,x_{t+1}}$ easily,
 \begin{align}
-&\hat{m}_{y_{t+1}\mid x_1,\cdots,x_{t+1}} = \Phi(G_X + \delta_T (\Lambda^+)^{-1})^{-1} K_{:x_{t+1}},\\
-\Leftrightarrow& \alpha^{(t+1)} = (G_X + \delta_T (\Lambda^+)^{-1})^{-1} K_{:x_{t+1}}
+&\hat{m}_{y_{t+1}\mid x_1,\cdots,x_{t+1}} = \Phi(K_X + \delta_T (\Lambda^+)^{-1})^{-1} K_{:x_{t+1}},\\
+\Leftrightarrow& \alpha^{(t+1)} = (K_X + \delta_T (\Lambda^+)^{-1})^{-1} K_{:x_{t+1}}
 \end{align}
 where $\Lambda^+ = \up{diag}(\bs{\beta}^+)$ and $\bs{\beta} = (G_Y + T\lambda_T I)^{-1}G_{YY+}(G_Y + T\lambda_T I)^{-1}G_Y \alpha^{(t)}$.
 
@@ -594,19 +596,56 @@ G_{YY} & G_{Y\tilde{Y}}\\
 G_{\tilde{Y}Y} & G_{\tilde{Y}\tilde{Y}}
 \end{pmatrix}$.
 
-According to \eqref{eqn:l2reg}, we obtain $\hat{m}_{y_{t+1}\mid x_1,\cdots,x_{t+1}}$,
+For the update rule of the $t$ step, we solve the optimization problem
 \begin{align}
-&\hat{m}_{y_{t+1}\mid x_1,\cdots,x_{t+1}} = \Phi(G_X' + \delta_T (\Lambda^+)^{-1})^{-1} K_{:x_{t+1}}',\\
-\Leftrightarrow& \alpha^{(t+1)} = (G_X' + \delta_T (\Lambda^+)^{-1})^{-1} K_{:x_{t+1}}'
+\cal{L} = \sum_{i=1}^{m} \beta_i^+ \norm{\phi(y_i) - \mu_{Y|X}^\pi(x_i)}^2 + \delta_T\norm{\mu_{Y|X}^\pi}_\Gamma^2 + \mu_T \norm{\mu_{Y|X}^\pi(\tilde{x}_t) - \phi(t_t)}^2,
 \end{align}
-where $\Lambda^+ = \up{diag}(\bs{\beta}^+,\mu)$, $\bs{\beta} = (G_Y + T\lambda_T I)^{-1}G_{YY_+}G_{Yy}(G_{yY}G_{Yy} + T\lambda_T G_{yy})^{-1}G_{yy} \begin{pmatrix}
+where $t_t$ is the state at the $t$ step according to the dynamics without noise and $\tilde{x}_t$ is the observation of $t_t$ according to the observation model without noise. Exploiting \eqref{eqn:l2reg}, we obtain $\hat{m}_{y_{t+1}\mid x_1,\cdots,x_{t+1}}$,
+\begin{align}
+&\hat{m}_{y_{t+1}\mid x_1,\cdots,x_{t+1}} = \Phi(K_X' + \delta_T (\Lambda^+)^{-1})^{-1} K_{:x_{t+1}}',\\
+\Leftrightarrow& \alpha^{(t+1)} = (K_X' + \delta_T (\Lambda^+)^{-1})^{-1} K_{:x_{t+1}}'
+\end{align}
+where $\Lambda^+ = \up{diag}(\bs{\beta}^+,\mu_T)$, $\bs{\beta} = (G_Y + T\lambda_T I)^{-1}G_{YY_+}G_{Yy}(G_{yY}G_{Yy} + T\lambda_T G_{yy})^{-1}G_{yy} \begin{pmatrix}
 \alpha^{(t)}\\
 \tilde{\alpha}^{(t)}
-\end{pmatrix}$ and $G_X'$ and $K_{:x_{t+1}}'$ incorporates $K(\tilde{x}_{t+1},\cdot)$.
-\paragraph{Max-Margin Filtering:} 
-\paragraph{Posterior Decoding:} The kernel means for the states can always be written as $\hat{m}_{y_t|x_1,\cdots,x_t} = \sum_{i=1}^T \alpha_i^{(t)}\phi(Y_i)$. As before, the optimization problem $\hat{Y}_i = \argmin_{y}\norm{\sum_{i=1}^T \alpha_i^{(t)}\phi(Y_i) - \phi(y)}^2$ yields $\hat{Y}_i = \argmin_y \{ k(y,y) - 2\sum_{i=1}^T \alpha_i^{(t)}k(y_i,y)\}$. For Gaussian kernel, there is a fixed point iteration method
+\end{pmatrix}$ and $K_X'$ and $K_{:x_{t+1}}'$ incorporates $K(\tilde{x}_{t+1},\cdot)$.
+\paragraph{Max-Margin Filtering:} We assume that 
 \begin{align}
-y^{(t+1)} = \frac{\sum_{i=1}^n Y_i \alpha_i^{(t)}\exp(-\norm{Y_i-y^{(t)}}^2/(2\sigma^2))}{\sum_{i=1}^n \alpha_i^{(t)}\exp(-\norm{Y_i-y^{(t)}}^2/(2\sigma^2))}.
+\hat{m}_{y_t|x_1,\cdots,x_t} = \sum_{i=1}^T \alpha_i^{(t)} \phi(Y_i) + \beta^{(t)} f.
+\end{align}
+With similar calculations, we obtain the prediction step of the filter:
+\begin{align}
+\hat{m}_{y_{t+1}\mid x_1,\cdots,x_t} &= \hat{C}_{Y_{+}Y}(\hat{C}_{YY}+\lambda_T I)^{-1}\hat{m}_{y_t\mid x_1,\cdots,x_t} \\
+&= \Phi_+^\T (G_Y + T \lambda_T I)^{-1} (G_Y\alpha^{(t)} + \beta^{(t)}f_{1:T}),
+\end{align}
+where $f_{1:T} = (f(Y_1),f(Y_2),\cdots,f(Y_T))^\T$ and $\alpha^{(t)} = (\alpha_1^{(t)},\alpha_2^{(t)}\cdots,\alpha_T^{(t)})^\T$. The weights $\bs{\beta}$ can be calculated as
+\begin{align}
+\bs{\beta} = (G_Y + T\lambda_T I)^{-1}G_{YY_+}(G_Y + T \lambda_T I)^{-1} (G_Y\alpha^{(t)} + \beta^{(t)}f_{1:T}).
+\end{align}
+
+For the update phase of the filter, we need to solve the optimization problem
+\begin{align}
+\cal{L} = \sum_{i=1}^{m} \beta_i^+ \norm{\phi(y_i) - \mu_{Y|X}^\pi(x_i)}^2 + \delta_T\norm{\mu_{Y|X}^\pi}_\Gamma^2 + \mu_T \max (0, |\langle f, \mu_{Y|X}^\pi(x_t)\rangle_{Y} - t_t| - \epsilon),
+\end{align}
+where $x_t$ is the observation at the $t$ step and $t_t$ is the value that we expect the expectation of $f$ w.r.t. the hidden state at the $t$ step to have.
+The update rules for the filter are
+\begin{align}
+\alpha^{(t+1)} &= \Lambda^+ K_{Xx}(K_{xX}\Lambda^+K_{Xx}+\delta_T K_{xx})^{-1}K_{:x_{t+1}}\\
+\beta^{(t+1)} &= \frac{1}{2} \bf{1}^\T (A^*-A) K_{xx}(K_{xX}\Lambda^+K_{Xx}+\delta_T K_{xx})^{-1}K_{:x_{t+1}},
+\end{align}
+where $\alpha$ and $\alpha^*$ need to be solved from
+\begin{gather}
+\inf_{\alpha,\alpha^*} \big\{ [\Phi^\T \Lambda^+ K_{Xx} + \frac{1}{2} f^\T (A^* - A)K_{xx}](K_{xX}\Lambda^+ K_{Xx} +\lambda K_{xx})^{-1}[K_{xX}\Lambda^+\Phi + \frac{1}{2} K_{xx} (A^* - A)f]\notag\\+ t_t(\alpha^* - \alpha) - \epsilon  (\alpha^* + \alpha)\big\}\\
+ s.t.\quad 0 \leq \alpha,\alpha^* \leq \mu_T.\notag
+\end{gather}
+
+\paragraph{Posterior Decoding:} The kernel means for the states can always be written as $\hat{m}_{y_t|x_1,\cdots,x_t} = \sum_{i=1}^T \alpha_i^{(t)}\phi(Y_i)$. As before, the optimization problem $\hat{Y}_i = \argmin_{y}\norm{\sum_{i=1}^T \alpha_i^{(t)}\phi(Y_i) - \phi(y)}^2$ yields $\hat{Y}_i = \argmin_y \{ k(y,y) - 2\sum_{i=1}^T \alpha_i^{(t)}k(y_i,y)\}$. For Gaussian kernel, there is a fixed point iteration method which empirically converges fast:
+\begin{align}
+y^{(n+1)} = \frac{\sum_{i=1}^T Y_i \alpha_i^{(t)}\exp(-\norm{Y_i-y^{(n)}}^2/(2\sigma^2))}{\sum_{i=1}^T \alpha_i^{(t)}\exp(-\norm{Y_i-y^{(n)}}^2/(2\sigma^2))}.
+\end{align}
+To decode the kernel mean derived from max-margin kernel filtering, we need to slightly adapt the above iteration rule to be
+\begin{align}
+y^{(n+1)} = \frac{\sum_{i=1}^T Y_i\alpha_i^{(t)}\exp(-\norm{Y_i-y^{(n)}}^2/(2\sigma^2)) + \sigma^2 \beta^{(t)} f'(y^{(n)}) }{\sum_{i=1}^T\alpha_i^{(t)} \exp(-\norm{Y_i-y^{(n)}}^2/(2\sigma^2))}.
 \end{align}
 \bibliography{note.bib}
 \end{document}
