@@ -345,7 +345,7 @@ A^* = \up{diag}(0,\cdots,0,\alpha_{m+1}^*,\alpha_{m+2}^*,\cdots,\alpha_{n}^*).
 
 Moreover, the Lagrange multipliers $\alpha_i$ and $\alpha_i^*$ are given by
 \begin{gather}
-\inf_{\alpha,\alpha^*} \big\{ [\Phi^\T \Lambda^+ K_{Xx} + \frac{1}{2} f^\T (A^* - A)K_{xx}](K_{xX}\Lambda^+ K_{Xx} +\lambda K_{xx})^{-1}[K_{xX}\Lambda^+\Phi + \frac{1}{2} K_{xx} (A^* - A)f]\notag\\+ t^\T (\alpha^* - \alpha) - \epsilon 1^\T (\alpha^* + \alpha)\big\}\label{eqn:lagmulti}\\
+\inf_{\alpha,\alpha^*} \big\{ [\Phi^\T \Lambda^+ K_{Xx} + \frac{1}{2} f^\T (A^* - A)K_{xx}](K_{xX}\Lambda^+ K_{Xx} +\lambda K_{xx})^{-1}[K_{xX}\Lambda^+\Phi + \frac{1}{2} K_{xx} (A^* - A)f]\notag\\- t^\T (\alpha^* - \alpha) + \epsilon 1^\T (\alpha^* + \alpha)\big\}\label{eqn:lagmulti}\\
  s.t.\quad 0 \leq \alpha,\alpha^* \leq \mu,\notag
 \end{gather}
 where $\alpha = (\alpha_{m+1},\alpha_{m+2},\cdots,\alpha_{n})$, $\alpha^* = (\alpha_{m+1}^*,\alpha_{m+2}^*,\cdots,\alpha_{n}^*)$ and the inequality holds element-wise.
@@ -390,8 +390,11 @@ If we already know the value of $f$'s on a fixed set of data points, can we inte
 
 \begin{theorem}
 Given a set of evaluations $\{(x_1,y_1),(x_2,y_2)\cdots,(x_n,y_n)\}$, and the assumption that evaluation functionals $L_{x_1},L_{x_2},\cdots,L_{x_n}$ are in general position, we can get a function $f \in \cal{H}$ with $f(x_i) = y_i$, and 
+%\begin{equation}
+%\langle f,f\rangle = \frac{(\bf{y}^\T K^{-1} \bf{y})^2}{\bf{y}^\T (K^2)^{-1}\bf{y}},
+%\end{equation}
 \begin{equation}
-\langle f,f\rangle = \frac{(\bf{y}^\T K^{-1} \bf{y})^2}{\bf{y}^\T (K^2)^{-1}\bf{y}},
+\langle f,f\rangle = \bf{y}^\T K^{-1}\bf{y},
 \end{equation}
 where $\bf{y} = (y_1,y_2,\cdots,y_n)^\T$ and $K_{ij} = k(x_i,x_j)$.
 \end{theorem}
@@ -416,6 +419,10 @@ In order to obtain $\langle f,f\rangle$, we need to solve
 s.t.\quad \sum_{i=1}^n t_i y_i = 1,
 \end{gather*}
 which can be solved analytically via Lagrange multipliers to give the result in the theorem.
+
+\subsubsection{Side note: obtaining $f$ via kernel SVM}
+
+
 \subsection{L2 Regularization}
 The regularized optimization problem to study in this section is
 \begin{align}
@@ -460,7 +467,7 @@ in probability as $n\rightarrow\infty$.
 \begin{proof}
 From Theorem 8 in \cite{fukumizu2011kernel} we already know that $\norm{\widehat{\mu}_Z^\pi-\mu_Z^\pi}_{\cal{H}_Z} \rightarrow 0$ in probability. Thus the theorem can be proved if $\norm{(\widehat{\mu}_Z^{\pi})^+ - \widehat{\mu}_Z^\pi}_{\cal{H}_Z} \rightarrow 0$. 
 
-In this proof we assume that $|\cal{Z}| = n$ and the sample size is $m$. For brevity and without losing generality, we assume $\cal{Z} = \{ (x_1,y_1),\cdots,(x_n,y_n) \}$ and $\{ (x_1,y_1),\cdots,(x_m,y_m) \}$ is an observed sample to be considered. Because $k_Z$ is positive definite on a finite set, \thmref{thm:smola} shows that $\cal{H}_Z$ consists of all bounded functions on $\cal{Z} = \{ (x_1,y_1),(x_2,y_2),\cdots,(x_n,y_n) \}$ and $\langle f,g\rangle_{\cal{H}_Z} = \bf{f}^\T R^+ \bf{g}$, where $R^+ = (k_Z(z_i,z_j))_{i,j=1}^n$ and $\bf{f}:=(f(x_i,y_i))_{i=1}^n$ is the vector of point evaluations of $f$ on $\cal{Z}$. In particular, $\cal{H}_Z$ contains the function
+In this proof we assume that $|\cal{Z}| = n$ and the sample size is $m$. For brevity and without losing generality, we assume $\cal{Z} = \{ (x_1,y_1),\cdots,(x_n,y_n) \}$ and $\{ (x_1,y_1),\cdots,(x_m,y_m) \}$ is an observed sample to be considered. Because $k_Z$ is positive definite on a finite set, \thmref{thm:smola} shows that $\cal{H}_Z$ consists of all bounded functions on $\cal{Z} = \{ (x_1,y_1),(x_2,y_2),\cdots,(x_n,y_n) \}$ and $\langle f,g\rangle_{\cal{H}_Z} = \bf{f}^\T R^+ \bf{g}$, where $R = (k_Z(z_i,z_j))_{i,j=1}^n$ and $\bf{f}:=(f(x_i,y_i))_{i=1}^n$ is the vector of point evaluations of $f$ on $\cal{Z}$. In particular, $\cal{H}_Z$ contains the function
 \begin{align}
 f(z_i) = \begin{cases}
 1, \quad &\beta_i < 0\\
@@ -566,7 +573,7 @@ where $\hat{m}_{x_{t+1}\mid x_1,\cdots,x_t}$ is the embedding for prediction. Ac
 \end{align}
 where $\Lambda^+ = \up{diag}(\bs{\beta}^+)$ and $\bs{\beta} = (G_Y + T\lambda_T I)^{-1}G_{YY+}(G_Y + T\lambda_T I)^{-1}G_Y \alpha^{(t)}$.
 
-For an initial estimate, we use conditional kernel embedding $\widehat{C}_{YX}(\widehat{C}_{YX} + \lambda_n I)^{-1} K_{:x_1}$, yielding $\alpha^{(1)} = T(G_Y + T\lambda_T I)^{-1}K_{:x_1}$.
+For an initial estimate, we use conditional kernel embedding $\widehat{C}_{YX}(\widehat{C}_{YX} + \lambda_n I)^{-1} K_{:x_1}$, yielding $\alpha^{(1)} = T(K_X + T\lambda_T I)^{-1}K_{:x_1}$.
 
 \paragraph{L2 Regularized Filtering}
 Ignoring process noise and observation noise, we assume that the states and observations of the dynamics should be $(\tilde{Y}_1,\tilde{X}_1,\cdots,\tilde{Y}_N,\tilde{X}_N)$. Here we assume instead that 
@@ -635,7 +642,7 @@ The update rules for the filter are
 \end{align}
 where $\alpha$ and $\alpha^*$ need to be solved from
 \begin{gather}
-\inf_{\alpha,\alpha^*} \big\{ [\Phi^\T \Lambda^+ K_{Xx} + \frac{1}{2} f^\T (A^* - A)K_{xx}](K_{xX}\Lambda^+ K_{Xx} +\lambda K_{xx})^{-1}[K_{xX}\Lambda^+\Phi + \frac{1}{2} K_{xx} (A^* - A)f]\notag\\+ t_t(\alpha^* - \alpha) - \epsilon  (\alpha^* + \alpha)\big\}\\
+\inf_{\alpha,\alpha^*} \big\{ [\Phi^\T \Lambda^+ K_{Xx} + \frac{1}{2} f^\T (A^* - A)K_{xx}](K_{xX}\Lambda^+ K_{Xx} +\delta_T K_{xx})^{-1}[K_{xX}\Lambda^+\Phi + \frac{1}{2} K_{xx} (A^* - A)f]\notag\\- t_t(\alpha^* - \alpha) + \epsilon  (\alpha^* + \alpha)\big\}\\
  s.t.\quad 0 \leq \alpha,\alpha^* \leq \mu_T.\notag
 \end{gather}
 
